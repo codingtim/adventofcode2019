@@ -9,15 +9,6 @@ class Opcode(private val data: MutableList<Int>, private val input: OpcodeInput,
         return data.joinToString(separator = ",")
     }
 
-    private fun opcode(data: MutableList<Int>): String {
-        var index = 0
-        while (true) {
-            index = executeValueOf(data, index)
-            if (data[index] == 99) break
-        }
-        return data.joinToString(separator = ",")
-    }
-
     private fun executeValueOf(data: MutableList<Int>, index: Int): Int {
         fun parameterValue(paramMode: Int, offset: Int): Int {
             return if (paramMode == 0) data[index + offset] else index + offset
@@ -67,7 +58,6 @@ class Opcode(private val data: MutableList<Int>, private val input: OpcodeInput,
         }
         throw IllegalStateException("Unknown operation $operation")
     }
-
 
 }
 

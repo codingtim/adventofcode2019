@@ -10,7 +10,7 @@ class Day07Test {
         val input = "3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0"
         val split = splitOpcodeString(input)
 
-        val runSignal = runSignal(listOf(4, 3, 2, 1, 0), split)
+        val runSignal = runSignal(InputOutput(listOf(4, 3, 2, 1, 0)), split)
         assertEquals(43210, runSignal.value())
     }
 
@@ -40,7 +40,7 @@ class Day07Test {
         var highestValue = -1
         var bestSignal = listOf<Int>()
         for (signal in permutations) {
-            val inputOutput = runSignal(signal, split)
+            val inputOutput = runSignal(InputOutput(signal), split)
             if (inputOutput.value() > highestValue) {
                 bestSignal = signal
                 highestValue = inputOutput.value()
@@ -49,8 +49,7 @@ class Day07Test {
         return Pair(highestValue, bestSignal)
     }
 
-    private fun runSignal(signal: List<Int>, split: MutableList<Int>): InputOutput {
-        val inputOutput = InputOutput(signal)
+    private fun runSignal(inputOutput: InputOutput, split: MutableList<Int>): InputOutput {
         for (i in 0..4) {
             Opcode(split.toMutableList(), inputOutput, inputOutput).execute()
         }
