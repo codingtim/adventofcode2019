@@ -80,6 +80,6 @@ interface OpcodeOutput {
     fun receive(output: Int)
 }
 
-fun split(s: String): MutableList<Int> {
+fun splitOpcodeString(s: String): MutableList<Int> {
     return s.split(",").map { Integer.parseInt(it) }.toMutableList()
 }
