@@ -15,100 +15,108 @@ class Day07Test {
         val split = splitOpcodeString(input)
 
         val output = runSignal(listOf(4, 3, 2, 1, 0), split)
-        assertEquals(43210, output.value())
+        assertEquals(43210, output)
     }
 
     @Test
     internal fun calculateExample1() {
         val input = "3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0"
         val split = splitOpcodeString(input)
+        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals")).map { it.split(" ").map { it -> Integer.parseInt(it) } }
 
-        val (highestValue, bestSignal) = bestSignal(split)
+        val highestValue = bestSignal(split, possibleSignals)
         assertEquals(43210, highestValue)
-        assertEquals(listOf(4, 3, 2, 1, 0), bestSignal)
     }
 
-     @Test
-     internal fun task1() {
-         val input = Files.readAllLines(Paths.get("src/test/resources/Day07"))[0]
-         val split = splitOpcodeString(input)
+    @Test
+    internal fun task1() {
+        val input = Files.readAllLines(Paths.get("src/test/resources/Day07"))[0]
+        val split = splitOpcodeString(input)
+        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals")).map { it.split(" ").map { it -> Integer.parseInt(it) } }
 
-         val (highestValue, bestSignal) = bestSignal(split)
-         println(highestValue)
-         println(bestSignal)
-     }
+        val highestValue = bestSignal(split, possibleSignals)
+        println(highestValue)
+    }
 
-    private fun bestSignal(split: MutableList<Int>): Pair<Int, List<Int>> {
-        val permutations = Files.readAllLines(Paths.get("src/test/resources/Day07Signals")).map { it.split(" ").map { it -> Integer.parseInt(it) } }
+    @Test
+    internal fun example2() {
+        val input = "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5"
+        val split = splitOpcodeString(input)
+        val signal = listOf(9, 8, 7, 6, 5)
 
+        val result = runSignal(signal, split)
+        assertEquals(139629729, result)
+    }
+
+    @Test
+    internal fun calculateExample2() {
+        val input = "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5"
+        val split = splitOpcodeString(input)
+        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals02")).map { it.split(" ").map { it -> Integer.parseInt(it) } }
+
+        val result = bestSignal(split, possibleSignals)
+        assertEquals(139629729, result)
+    }
+
+    @Test
+    internal fun example2_2() {
+        val input = "3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,-5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10"
+        val split = splitOpcodeString(input)
+        val signal = listOf(9, 7, 8, 5, 6)
+
+        val result = runSignal(signal, split)
+        assertEquals(18216, result)
+    }
+
+    @Test
+    internal fun task2() {
+        val input = Files.readAllLines(Paths.get("src/test/resources/Day07"))[0]
+        val split = splitOpcodeString(input)
+        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals02")).map { it.split(" ").map { it -> Integer.parseInt(it) } }
+
+        val highestValue = bestSignal(split, possibleSignals)
+        println(highestValue)
+    }
+
+    private fun bestSignal(split: MutableList<Int>, possibleSignals: List<List<Int>>): Int {
         var highestValue = -1
-        var bestSignal = listOf<Int>()
-        for (signal in permutations) {
-            val inputOutput = runSignal(signal, split)
-            if (inputOutput.value() > highestValue) {
-                bestSignal = signal
-                highestValue = inputOutput.value()
+        for (signal in possibleSignals) {
+            val value = runSignal(signal, split)
+            if (value > highestValue) {
+                highestValue = value
             }
         }
-        return Pair(highestValue, bestSignal)
+        return highestValue
     }
 
-    private fun runSignal(signal: List<Int>, split: MutableList<Int>): ResultOutput {
-        val resultIO = ResultOutput()
+    private fun runSignal(signal: List<Int>, split: MutableList<Int>): Int {
         val ampEIO = InputOutput("E", mutableListOf(signal[4]))
         val ampDIO = InputOutput("D", mutableListOf(signal[3]))
         val ampCIO = InputOutput("C", mutableListOf(signal[2]))
         val ampBIO = InputOutput("B", mutableListOf(signal[1]))
         val ampAIO = InputOutput("A", mutableListOf(signal[0], 0))
 
-        val ampE = Opcode07("E", split.toMutableList(), ampEIO, resultIO)
+        val ampE = Opcode07("E", split.toMutableList(), ampEIO, ampAIO)
         val ampD = Opcode07("D", split.toMutableList(), ampDIO, ampEIO)
         val ampC = Opcode07("C", split.toMutableList(), ampCIO, ampDIO)
         val ampB = Opcode07("B", split.toMutableList(), ampBIO, ampCIO)
         val ampA = Opcode07("A", split.toMutableList(), ampAIO, ampBIO)
 
-        runBlocking {
-            val amps = listOf(ampA, ampB, ampC, ampD, ampE).map { amp -> async { amp.execute() } }
+        return runBlocking {
+            val amps = listOf(ampA, ampB, ampC, ampD).map { amp -> async { amp.execute() } }
+            async { ampE.execute() }
             amps.awaitAll()
+            val receive = ampAIO.channel.receive()
+            receive
         }
-        return resultIO
-    }
-
-//    @Test
-//    internal fun calculateExample2() {
-//        val input = "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5"
-//        val split = splitOpcodeString(input)
-//
-//        val amp1 = Opcode(split.toMutableList(), inputOutput, inputOutput)
-//        val amp2 = Opcode(split.toMutableList(), inputOutput, inputOutput)
-//        val amp3 = Opcode(split.toMutableList(), inputOutput, inputOutput)
-//        val amp4 = Opcode(split.toMutableList(), inputOutput, inputOutput)
-//        val amp5 = Opcode(split.toMutableList(), inputOutput, inputOutput)
-//        val amps = listOf(amp1, amp2, amp3, amp4, amp5)
-//        var amp = 0;
-//        while(true) {
-//            amps[amp % 5].execute()
-//            amp++
-//        }
-//
-//        assertEquals(139629729, inputOutput.value())
-//    }
-
-    class ResultOutput : OpcodeOutput07 {
-        private var result: Int = -1
-        override suspend fun receive(output: Int) {
-            result = output
-        }
-
-        fun value(): Int = result
     }
 
     class InputOutput(private val amp: String, private val inputs: MutableList<Int>) : OpcodeInput07, OpcodeOutput07 {
-
-        private val channel: Channel<Int> = Channel()
+        val channel: Channel<Int> = Channel()
 
         override suspend fun get(): Int {
             val res = if (inputs.isEmpty()) {
+                println("$amp waiting for value")
                 channel.receive();
             } else {
                 val i = inputs[0]
@@ -122,6 +130,7 @@ class Day07Test {
         override suspend fun receive(output: Int) {
             println("Receiving on $amp $output")
             channel.send(output)
+            println("Done receiving on $amp $output")
         }
     }
 
