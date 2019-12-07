@@ -1,7 +1,7 @@
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Paths
-import kotlin.test.assertEquals
 
 class Tests {
     @Test
@@ -19,7 +19,7 @@ class Tests {
 
     @Test
     internal fun part1() {
-        val lines = Files.readAllLines(Paths.get("test/Day01"))
+        val lines = Files.readAllLines(Paths.get("src/test/resources/Day01"))
         val sum = lines
                 .map { line -> Integer.parseInt(line) }
                 .map { mass -> fuelCostOf(mass) }
@@ -29,7 +29,7 @@ class Tests {
 
     @Test
     internal fun part2() {
-        val lines = Files.readAllLines(Paths.get("test/Day01"))
+        val lines = Files.readAllLines(Paths.get("src/test/resources/Day01"))
         val sum = lines
                 .map { line -> Integer.parseInt(line) }
                 .map { mass -> fuelCostOfRecursive(mass) }

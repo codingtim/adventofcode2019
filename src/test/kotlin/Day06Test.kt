@@ -22,7 +22,7 @@ class Day06Test {
 
     @Test
     internal fun task1() {
-        val lines = Files.readAllLines(Paths.get("test/Day06"))
+        val lines = Files.readAllLines(Paths.get("src/test/resources/Day06"))
         val input = (lines).map { Orbit.fromInput(it) }
         println(getOrbitCount(input))
         //253104

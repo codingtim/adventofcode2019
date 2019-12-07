@@ -1,6 +1,6 @@
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.lang.System.exit
-import kotlin.test.assertEquals
 
 class Day02Test {
     @Test

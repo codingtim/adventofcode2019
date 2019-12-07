@@ -1,8 +1,8 @@
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.math.abs
-import kotlin.test.assertEquals
 
 class Day03Tests {
     @Test
@@ -35,13 +35,13 @@ class Day03Tests {
 
     @Test
     internal fun part1() {
-        val lines = Files.readAllLines(Paths.get("test/Day03"))
+        val lines = Files.readAllLines(Paths.get("src/test/resources/Day03"))
         println(findClosestCrossingManhatten(lines[0], lines[1]))
     }
 
     @Test
     internal fun part2() {
-        val lines = Files.readAllLines(Paths.get("test/Day03"))
+        val lines = Files.readAllLines(Paths.get("src/test/resources/Day03"))
         println(findClosestCrossingSteps(lines[0], lines[1]))
     }
 
