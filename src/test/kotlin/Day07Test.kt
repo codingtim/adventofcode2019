@@ -89,18 +89,18 @@ class Day07Test {
         return highestValue
     }
 
-    private fun runSignal(signal: List<Int>, split: MutableList<Int>): Int {
+    private fun runSignal(signal: List<Int>, input: MutableList<Int>): Int {
         val ampEIO = InputOutput("E", mutableListOf(signal[4]))
         val ampDIO = InputOutput("D", mutableListOf(signal[3]))
         val ampCIO = InputOutput("C", mutableListOf(signal[2]))
         val ampBIO = InputOutput("B", mutableListOf(signal[1]))
         val ampAIO = InputOutput("A", mutableListOf(signal[0], 0))
 
-        val ampE = Opcode07("E", split.toMutableList(), ampEIO, ampAIO)
-        val ampD = Opcode07("D", split.toMutableList(), ampDIO, ampEIO)
-        val ampC = Opcode07("C", split.toMutableList(), ampCIO, ampDIO)
-        val ampB = Opcode07("B", split.toMutableList(), ampBIO, ampCIO)
-        val ampA = Opcode07("A", split.toMutableList(), ampAIO, ampBIO)
+        val ampE = Opcode07("E", input.toMutableList(), ampEIO, ampAIO)
+        val ampD = Opcode07("D", input.toMutableList(), ampDIO, ampEIO)
+        val ampC = Opcode07("C", input.toMutableList(), ampCIO, ampDIO)
+        val ampB = Opcode07("B", input.toMutableList(), ampBIO, ampCIO)
+        val ampA = Opcode07("A", input.toMutableList(), ampAIO, ampBIO)
 
         return runBlocking {
             val amps = listOf(ampA, ampB, ampC, ampD).map { amp -> async { amp.execute() } }
