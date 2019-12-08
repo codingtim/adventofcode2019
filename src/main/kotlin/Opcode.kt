@@ -1,5 +1,5 @@
-class Opcode07(private val name: String, private val data: MutableList<Int>, private val input: OpcodeInput07, private val output: OpcodeOutput07) {
-    constructor(data: MutableList<Int>, input: OpcodeInput07, output: OpcodeOutput07) : this("", data, input, output)
+class Opcode(private val name: String, private val data: MutableList<Int>, private val input: OpcodeInput, private val output: OpcodeOutput) {
+    constructor(data: MutableList<Int>, input: OpcodeInput, output: OpcodeOutput) : this("", data, input, output)
 
     suspend fun execute(): String {
         var index = 0
@@ -64,12 +64,12 @@ class Opcode07(private val name: String, private val data: MutableList<Int>, pri
 
 }
 
-interface OpcodeInput07 {
+interface OpcodeInput {
     suspend fun get(): Int
 }
 
 
-interface OpcodeOutput07 {
+interface OpcodeOutput {
     suspend fun receive(output: Int)
 }
 

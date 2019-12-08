@@ -96,11 +96,11 @@ class Day07Test {
         val ampBIO = InputOutput("B", mutableListOf(signal[1]))
         val ampAIO = InputOutput("A", mutableListOf(signal[0], 0))
 
-        val ampE = Opcode07("E", input.toMutableList(), ampEIO, ampAIO)
-        val ampD = Opcode07("D", input.toMutableList(), ampDIO, ampEIO)
-        val ampC = Opcode07("C", input.toMutableList(), ampCIO, ampDIO)
-        val ampB = Opcode07("B", input.toMutableList(), ampBIO, ampCIO)
-        val ampA = Opcode07("A", input.toMutableList(), ampAIO, ampBIO)
+        val ampE = Opcode("E", input.toMutableList(), ampEIO, ampAIO)
+        val ampD = Opcode("D", input.toMutableList(), ampDIO, ampEIO)
+        val ampC = Opcode("C", input.toMutableList(), ampCIO, ampDIO)
+        val ampB = Opcode("B", input.toMutableList(), ampBIO, ampCIO)
+        val ampA = Opcode("A", input.toMutableList(), ampAIO, ampBIO)
 
         return runBlocking {
             val amps = listOf(ampA, ampB, ampC, ampD).map { amp -> async { amp.execute() } }
@@ -111,7 +111,7 @@ class Day07Test {
         }
     }
 
-    class InputOutput(private val amp: String, private val inputs: MutableList<Int>) : OpcodeInput07, OpcodeOutput07 {
+    class InputOutput(private val amp: String, private val inputs: MutableList<Int>) : OpcodeInput, OpcodeOutput {
         val channel: Channel<Int> = Channel()
 
         override suspend fun get(): Int {

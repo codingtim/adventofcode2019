@@ -6,7 +6,7 @@ class Day05Test {
 
     private val inputOne = FixedInput(1)
 
-    private val outputStore = object : OpcodeOutput07 {
+    private val outputStore = object : OpcodeOutput {
         private var lastOutput = -1
         override suspend fun receive(output: Int) {
             lastOutput = output;
@@ -36,7 +36,7 @@ class Day05Test {
         assertEquals("1,0,4,0,99", runOpcode("3,0,4,0,99"))
     }
 
-    private fun runOpcode(data: String) = runBlocking { Opcode07(splitOpcodeString(data), inputOne, outputStore).execute() }
+    private fun runOpcode(data: String) = runBlocking { Opcode(splitOpcodeString(data), inputOne, outputStore).execute() }
 
     @Test
     internal fun lessThanEqualsOperations() {
@@ -50,7 +50,7 @@ class Day05Test {
         assertEquals(1, outputStore.get())
     }
 
-    private fun runOpcode(data: String, input: OpcodeInput07) = runBlocking { Opcode07(splitOpcodeString(data), input, outputStore).execute() }
+    private fun runOpcode(data: String, input: OpcodeInput) = runBlocking { Opcode(splitOpcodeString(data), input, outputStore).execute() }
 
     @Test
     internal fun jump() {
@@ -87,7 +87,7 @@ class Day05Test {
         print(outputStore.get())
     }
 
-    class FixedInput(private val input: Int): OpcodeInput07 {
+    class FixedInput(private val input: Int): OpcodeInput {
         override suspend fun get(): Int {
             return input;
         }
