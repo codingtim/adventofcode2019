@@ -2,6 +2,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.*
 
 class Day08Test {
 
@@ -47,5 +48,42 @@ class Day08Test {
         println(numberOfOnes * numberOfTwos)
     }
 
+    @Test
+    internal fun smallImageResult() {
+        val rows = 2
+        val columns = 2
+        val input = "0222112222120000"
+        val pixelsPerLayer = rows * columns
+        val numberOfLayers = input.length / pixelsPerLayer
 
+        println(getMessage(pixelsPerLayer, numberOfLayers, input))
+    }
+
+    @Test
+    internal fun task2() {
+        val rows = 25
+        val columns = 6
+        val input = Files.readAllLines(Paths.get("src/test/resources/Day08"))[0]
+        val pixelsPerLayer = rows * columns
+        val numberOfLayers = input.length / pixelsPerLayer
+
+        val message = getMessage(pixelsPerLayer, numberOfLayers, input)
+        for (i in 0 until pixelsPerLayer) {
+            if (i % rows == 0) print('\n')
+            if (message[i] == '1') print('x')
+            else print(' ')
+        }
+    }
+
+    private fun getMessage(pixelsPerLayer: Int, numberOfLayers: Int, input: String): CharArray {
+        return IntRange(0, pixelsPerLayer - 1)
+                .map { pixel ->
+                    IntRange(0, numberOfLayers - 1)
+                            .map { (it * pixelsPerLayer) + pixel }
+                            .map { pixelIndex -> input[pixelIndex] }
+                            .dropWhile { it == '2' }
+                            .first()
+                }
+                .toCharArray()
+    }
 }
