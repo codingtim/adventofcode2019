@@ -1,4 +1,5 @@
-class Opcode07(private val amp: String, private val data: MutableList<Int>, private val input: OpcodeInput07, private val output: OpcodeOutput07) {
+class Opcode07(private val name: String, private val data: MutableList<Int>, private val input: OpcodeInput07, private val output: OpcodeOutput07) {
+    constructor(data: MutableList<Int>, input: OpcodeInput07, output: OpcodeOutput07) : this("", data, input, output)
 
     suspend fun execute(): String {
         var index = 0
@@ -6,7 +7,7 @@ class Opcode07(private val amp: String, private val data: MutableList<Int>, priv
             index = executeValueOf(data, index)
             if (data[index] == 99) break
         }
-        println("Amp $amp done")
+        println("Computer $name done")
         return data.joinToString(separator = ",")
     }
 
@@ -14,6 +15,7 @@ class Opcode07(private val amp: String, private val data: MutableList<Int>, priv
         fun parameterValue(paramMode: Int, offset: Int): Int {
             return if (paramMode == 0) data[index + offset] else index + offset
         }
+
         val value = data[index]
         val operation = value % 10
         val param1Mode = value / 100 % 10
@@ -69,5 +71,9 @@ interface OpcodeInput07 {
 
 interface OpcodeOutput07 {
     suspend fun receive(output: Int)
+}
+
+fun splitOpcodeString(s: String): MutableList<Int> {
+    return s.split(",").map { Integer.parseInt(it) }.toMutableList()
 }
 
