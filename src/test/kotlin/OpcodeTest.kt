@@ -19,20 +19,26 @@ internal class OpcodeTest {
         assertEquals(1219070632396864, result)
     }
 
+    @Test
+    internal fun supportOutOfInputArrayIndexes() {
+        runOpcode("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99", FixedInput(-1L))
+        assertEquals(
+                listOf(109L,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99),
+                outputStore.getAll()
+        )
+    }
+
     private fun runOpcode(data: String, input: OpcodeInput) = runBlocking { Opcode(splitOpcodeString(data), input, outputStore).execute() }
 
 }
 
 class OutputStore: OpcodeOutput {
-    private var lastOutput = -1L
+    private var outputs = mutableListOf<Long>()
     override suspend fun receive(output: Long) {
-        lastOutput = output;
+        outputs.add(output)
     }
-    fun get(): Long {
-        val ret = lastOutput;
-        lastOutput = -1
-        return ret
-    }
+    fun get(): Long = outputs.last()
+    fun getAll(): List<Long> = outputs
 }
 
 class FixedInput(private val input: Long): OpcodeInput {

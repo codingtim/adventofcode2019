@@ -1,5 +1,8 @@
-class Opcode(private val name: String, private val data: MutableList<Long>, private val input: OpcodeInput, private val output: OpcodeOutput) {
+class Opcode(private val name: String, private val data: OpcodeData, private val input: OpcodeInput, private val output: OpcodeOutput) {
+    constructor(name: String, data: MutableList<Long>, input: OpcodeInput, output: OpcodeOutput) : this (name, OpcodeData.fromList(data), input, output)
     constructor(data: MutableList<Long>, input: OpcodeInput, output: OpcodeOutput) : this("", data, input, output)
+
+    private var relativeBase = 0
 
     suspend fun execute(): String {
         var index = 0
@@ -8,7 +11,7 @@ class Opcode(private val name: String, private val data: MutableList<Long>, priv
             if (data[index] == 99L) break
         }
         println("Computer $name done")
-        return data.joinToString(separator = ",")
+        return data.joinToString()
     }
 
     private suspend fun executeValueOf(index: Int): Int {
@@ -16,17 +19,20 @@ class Opcode(private val name: String, private val data: MutableList<Long>, priv
             return if (paramMode == 0) {
                 //position mode
                 data[index + offset].toInt()
-            } else {
+            } else if (paramMode == 1) {
                 //direct mode
                 index + offset
+            } else {
+                //relative mode
+                data[index + offset].toInt() + relativeBase
             }
         }
 
         val value = data[index].toInt()
         val operation = value % 10
         val param1Mode = value / 100 % 10
-        val param2Mode = value / 1000 % 100
-        val param3Mode = value / 10000 % 1000
+        val param2Mode = value / 1000 % 10
+        val param3Mode = value / 10000 % 10
         if (operation == 1) {
             data[parameterValue(param3Mode, 3)] = data[parameterValue(param1Mode, 1)] + data[parameterValue(param2Mode, 2)]
             return index + 4
@@ -65,9 +71,34 @@ class Opcode(private val name: String, private val data: MutableList<Long>, priv
             }
             return index + 4
         }
+        if (operation == 9) {
+            relativeBase += data[parameterValue(param1Mode, 1)].toInt()
+            return index + 2
+        }
         throw IllegalStateException("Unknown operation $operation")
     }
 
+}
+
+class OpcodeData(private val data: MutableMap<Int, Long>) {
+    operator fun get(index: Int): Long = data[index]?:0
+    operator fun set(index: Int, value: Long) {
+        data[index] = value
+    }
+
+    fun joinToString(): String {
+        return data.keys.sorted().map { data[it] }.joinToString(",")
+    }
+
+    companion object OpcodeDatas {
+        fun fromList(inputData: List<Long>): OpcodeData {
+            val map = mutableMapOf<Int, Long>()
+            for (i in 0 until inputData.size) {
+                map[i] = inputData[i]
+            }
+            return OpcodeData(map)
+        }
+    }
 }
 
 interface OpcodeInput {
