@@ -15,6 +15,13 @@ class Day09Test {
         print(outputStore.getAll())
     }
 
+    @Test
+    internal fun task2() {
+        val input = Files.readAllLines(Paths.get("src/test/resources/Day09"))[0]
+        runOpcode(input, FixedInput(2L))
+        print(outputStore.getAll())
+    }
+
     private fun runOpcode(data: String, input: OpcodeInput) = runBlocking { Opcode(splitOpcodeString(data), input, outputStore).execute() }
 
 }
