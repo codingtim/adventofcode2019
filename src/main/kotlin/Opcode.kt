@@ -4,16 +4,22 @@ class Opcode(private val name: String, private val data: MutableList<Int>, priva
     suspend fun execute(): String {
         var index = 0
         while (true) {
-            index = executeValueOf(data, index)
+            index = executeValueOf(index)
             if (data[index] == 99) break
         }
         println("Computer $name done")
         return data.joinToString(separator = ",")
     }
 
-    private suspend fun executeValueOf(data: MutableList<Int>, index: Int): Int {
+    private suspend fun executeValueOf(index: Int): Int {
         fun parameterValue(paramMode: Int, offset: Int): Int {
-            return if (paramMode == 0) data[index + offset] else index + offset
+            return if (paramMode == 0) {
+                //position mode
+                data[index + offset]
+            } else {
+                //direct mode
+                index + offset
+            }
         }
 
         val value = data[index]
