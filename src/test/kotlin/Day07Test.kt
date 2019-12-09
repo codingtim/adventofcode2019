@@ -14,7 +14,7 @@ class Day07Test {
         val input = "3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0"
         val split = splitOpcodeString(input)
 
-        val output = runSignal(listOf(4, 3, 2, 1, 0), split)
+        val output = runSignal(listOf(4L, 3L, 2L, 1L, 0L), split)
         assertEquals(43210, output)
     }
 
@@ -22,7 +22,7 @@ class Day07Test {
     internal fun calculateExample1() {
         val input = "3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0"
         val split = splitOpcodeString(input)
-        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals")).map { it.split(" ").map { it -> Integer.parseInt(it) } }
+        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals")).map { it.split(" ").map { s -> s.toLong() } }
 
         val highestValue = bestSignal(split, possibleSignals)
         assertEquals(43210, highestValue)
@@ -32,7 +32,7 @@ class Day07Test {
     internal fun task1() {
         val input = Files.readAllLines(Paths.get("src/test/resources/Day07"))[0]
         val split = splitOpcodeString(input)
-        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals")).map { it.split(" ").map { it -> Integer.parseInt(it) } }
+        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals")).map { it.split(" ").map { s -> s.toLong() } }
 
         val highestValue = bestSignal(split, possibleSignals)
         println(highestValue)
@@ -42,7 +42,7 @@ class Day07Test {
     internal fun example2() {
         val input = "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5"
         val split = splitOpcodeString(input)
-        val signal = listOf(9, 8, 7, 6, 5)
+        val signal = listOf(9L, 8L, 7L, 6L, 5L)
 
         val result = runSignal(signal, split)
         assertEquals(139629729, result)
@@ -52,7 +52,7 @@ class Day07Test {
     internal fun calculateExample2() {
         val input = "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5"
         val split = splitOpcodeString(input)
-        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals02")).map { it.split(" ").map { it -> Integer.parseInt(it) } }
+        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals02")).map { it.split(" ").map { s -> s.toLong() } }
 
         val result = bestSignal(split, possibleSignals)
         assertEquals(139629729, result)
@@ -62,7 +62,7 @@ class Day07Test {
     internal fun example2_2() {
         val input = "3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,-5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10"
         val split = splitOpcodeString(input)
-        val signal = listOf(9, 7, 8, 5, 6)
+        val signal = listOf(9L, 7L, 8L, 5L, 6L)
 
         val result = runSignal(signal, split)
         assertEquals(18216, result)
@@ -72,14 +72,14 @@ class Day07Test {
     internal fun task2() {
         val input = Files.readAllLines(Paths.get("src/test/resources/Day07"))[0]
         val split = splitOpcodeString(input)
-        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals02")).map { it.split(" ").map { it -> Integer.parseInt(it) } }
+        val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals02")).map { it.split(" ").map { s -> s.toLong() } }
 
         val highestValue = bestSignal(split, possibleSignals)
         println(highestValue)
     }
 
-    private fun bestSignal(split: MutableList<Int>, possibleSignals: List<List<Int>>): Int {
-        var highestValue = -1
+    private fun bestSignal(split: MutableList<Long>, possibleSignals: List<List<Long>>): Long {
+        var highestValue = -1L
         for (signal in possibleSignals) {
             val value = runSignal(signal, split)
             if (value > highestValue) {
@@ -89,7 +89,7 @@ class Day07Test {
         return highestValue
     }
 
-    private fun runSignal(signal: List<Int>, input: MutableList<Int>): Int {
+    private fun runSignal(signal: List<Long>, input: MutableList<Long>): Long {
         val ampEIO = InputOutput("E", mutableListOf(signal[4]))
         val ampDIO = InputOutput("D", mutableListOf(signal[3]))
         val ampCIO = InputOutput("C", mutableListOf(signal[2]))
@@ -111,10 +111,10 @@ class Day07Test {
         }
     }
 
-    class InputOutput(private val amp: String, private val inputs: MutableList<Int>) : OpcodeInput, OpcodeOutput {
-        val channel: Channel<Int> = Channel()
+    class InputOutput(private val amp: String, private val inputs: MutableList<Long>) : OpcodeInput, OpcodeOutput {
+        val channel: Channel<Long> = Channel()
 
-        override suspend fun get(): Int {
+        override suspend fun get(): Long {
             val res = if (inputs.isEmpty()) {
                 println("$amp waiting for value")
                 channel.receive();
@@ -127,7 +127,7 @@ class Day07Test {
             return res;
         }
 
-        override suspend fun receive(output: Int) {
+        override suspend fun receive(output: Long) {
             println("Receiving on $amp $output")
             channel.send(output)
             println("Done receiving on $amp $output")

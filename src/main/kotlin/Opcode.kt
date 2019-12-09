@@ -1,11 +1,11 @@
-class Opcode(private val name: String, private val data: MutableList<Int>, private val input: OpcodeInput, private val output: OpcodeOutput) {
-    constructor(data: MutableList<Int>, input: OpcodeInput, output: OpcodeOutput) : this("", data, input, output)
+class Opcode(private val name: String, private val data: MutableList<Long>, private val input: OpcodeInput, private val output: OpcodeOutput) {
+    constructor(data: MutableList<Long>, input: OpcodeInput, output: OpcodeOutput) : this("", data, input, output)
 
     suspend fun execute(): String {
         var index = 0
         while (true) {
             index = executeValueOf(index)
-            if (data[index] == 99) break
+            if (data[index] == 99L) break
         }
         println("Computer $name done")
         return data.joinToString(separator = ",")
@@ -15,14 +15,14 @@ class Opcode(private val name: String, private val data: MutableList<Int>, priva
         fun parameterValue(paramMode: Int, offset: Int): Int {
             return if (paramMode == 0) {
                 //position mode
-                data[index + offset]
+                data[index + offset].toInt()
             } else {
                 //direct mode
                 index + offset
             }
         }
 
-        val value = data[index]
+        val value = data[index].toInt()
         val operation = value % 10
         val param1Mode = value / 100 % 10
         val param2Mode = value / 1000 % 100
@@ -44,10 +44,10 @@ class Opcode(private val name: String, private val data: MutableList<Int>, priva
             return index + 2
         }
         if (operation == 5) {
-            return if (data[parameterValue(param1Mode, 1)] != 0) data[parameterValue(param2Mode, 2)] else index + 3
+            return if (data[parameterValue(param1Mode, 1)] != 0L) data[parameterValue(param2Mode, 2)].toInt() else (index + 3)
         }
         if (operation == 6) {
-            return if (data[parameterValue(param1Mode, 1)] == 0) data[parameterValue(param2Mode, 2)] else index + 3
+            return if (data[parameterValue(param1Mode, 1)] == 0L) data[parameterValue(param2Mode, 2)].toInt() else index + 3
         }
         if (operation == 7) {
             if (data[parameterValue(param1Mode, 1)] < data[parameterValue(param2Mode, 2)]) {
@@ -71,15 +71,14 @@ class Opcode(private val name: String, private val data: MutableList<Int>, priva
 }
 
 interface OpcodeInput {
-    suspend fun get(): Int
+    suspend fun get(): Long
 }
-
 
 interface OpcodeOutput {
-    suspend fun receive(output: Int)
+    suspend fun receive(output: Long)
 }
 
-fun splitOpcodeString(s: String): MutableList<Int> {
-    return s.split(",").map { Integer.parseInt(it) }.toMutableList()
+fun splitOpcodeString(s: String): MutableList<Long> {
+    return s.split(",").map { it.toLong() }.toMutableList()
 }
 
