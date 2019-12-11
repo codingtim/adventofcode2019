@@ -35,7 +35,7 @@ class Day07Test {
         val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals")).map { it.split(" ").map { s -> s.toLong() } }
 
         val highestValue = bestSignal(split, possibleSignals)
-        println(highestValue)
+        assertEquals(929800, highestValue)
     }
 
     @Test
@@ -75,7 +75,7 @@ class Day07Test {
         val possibleSignals = Files.readAllLines(Paths.get("src/test/resources/Day07Signals02")).map { it.split(" ").map { s -> s.toLong() } }
 
         val highestValue = bestSignal(split, possibleSignals)
-        println(highestValue)
+        assertEquals(15432220, highestValue)
     }
 
     private fun bestSignal(split: MutableList<Long>, possibleSignals: List<List<Long>>): Long {

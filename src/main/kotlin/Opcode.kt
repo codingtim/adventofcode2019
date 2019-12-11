@@ -1,86 +1,80 @@
-class Opcode(private val name: String, private val data: OpcodeData, private val input: OpcodeInput, private val output: OpcodeOutput) {
-    constructor(name: String, data: MutableList<Long>, input: OpcodeInput, output: OpcodeOutput) : this (name, OpcodeData.fromList(data), input, output)
+class Opcode(private val name: String, private val memory: OpcodeMemory, private val input: OpcodeInput, private val output: OpcodeOutput) {
+    constructor(name: String, data: MutableList<Long>, input: OpcodeInput, output: OpcodeOutput) : this (name, OpcodeMemory.fromList(data), input, output)
     constructor(data: MutableList<Long>, input: OpcodeInput, output: OpcodeOutput) : this("", data, input, output)
 
     private var relativeBase = 0
+    private var memoryPointer = 0
 
     suspend fun execute(): String {
-        var index = 0
         while (true) {
-            index = executeValueOf(index)
-            if (data[index] == 99L) break
+            memoryPointer = executeCurrentMemoryPointer()
+            if (memory[memoryPointer] == 99L) break
         }
         println("Computer $name done")
-        return data.joinToString()
+        return memory.joinToString()
     }
 
-    private suspend fun executeValueOf(index: Int): Int {
+    private suspend fun executeCurrentMemoryPointer(): Int {
         fun parameterValue(paramMode: Int, offset: Int): Int {
-            return if (paramMode == 0) {
-                //position mode
-                data[index + offset].toInt()
-            } else if (paramMode == 1) {
-                //direct mode
-                index + offset
-            } else {
-                //relative mode
-                data[index + offset].toInt() + relativeBase
+            return when (paramMode) {
+                0 -> memory[memoryPointer + offset].toInt()                     //position mode
+                1 -> memoryPointer + offset                                     //direct mode
+                else -> memory[memoryPointer + offset].toInt() + relativeBase   //relative mode
             }
         }
 
-        val value = data[index].toInt()
+        val value = memory[memoryPointer].toInt()
         val operation = value % 10
         val param1Mode = value / 100 % 10
         val param2Mode = value / 1000 % 10
         val param3Mode = value / 10000 % 10
         if (operation == 1) {
-            data[parameterValue(param3Mode, 3)] = data[parameterValue(param1Mode, 1)] + data[parameterValue(param2Mode, 2)]
-            return index + 4
+            memory[parameterValue(param3Mode, 3)] = memory[parameterValue(param1Mode, 1)] + memory[parameterValue(param2Mode, 2)]
+            return memoryPointer + 4
         }
         if (operation == 2) {
-            data[parameterValue(param3Mode, 3)] = data[parameterValue(param1Mode, 1)] * data[parameterValue(param2Mode, 2)]
-            return index + 4
+            memory[parameterValue(param3Mode, 3)] = memory[parameterValue(param1Mode, 1)] * memory[parameterValue(param2Mode, 2)]
+            return memoryPointer + 4
         }
         if (operation == 3) {
-            data[parameterValue(param1Mode, 1)] = input.get()
-            return index + 2
+            memory[parameterValue(param1Mode, 1)] = input.get()
+            return memoryPointer + 2
         }
         if (operation == 4) {
-            output.receive(data[parameterValue(param1Mode, 1)])
-            return index + 2
+            output.receive(memory[parameterValue(param1Mode, 1)])
+            return memoryPointer + 2
         }
         if (operation == 5) {
-            return if (data[parameterValue(param1Mode, 1)] != 0L) data[parameterValue(param2Mode, 2)].toInt() else (index + 3)
+            return if (memory[parameterValue(param1Mode, 1)] != 0L) memory[parameterValue(param2Mode, 2)].toInt() else (memoryPointer + 3)
         }
         if (operation == 6) {
-            return if (data[parameterValue(param1Mode, 1)] == 0L) data[parameterValue(param2Mode, 2)].toInt() else index + 3
+            return if (memory[parameterValue(param1Mode, 1)] == 0L) memory[parameterValue(param2Mode, 2)].toInt() else memoryPointer + 3
         }
         if (operation == 7) {
-            if (data[parameterValue(param1Mode, 1)] < data[parameterValue(param2Mode, 2)]) {
-                data[parameterValue(param3Mode, 3)] = 1
+            if (memory[parameterValue(param1Mode, 1)] < memory[parameterValue(param2Mode, 2)]) {
+                memory[parameterValue(param3Mode, 3)] = 1
             } else {
-                data[parameterValue(param3Mode, 3)] = 0
+                memory[parameterValue(param3Mode, 3)] = 0
             }
-            return index + 4
+            return memoryPointer + 4
         }
         if (operation == 8) {
-            if (data[parameterValue(param1Mode, 1)] == data[parameterValue(param2Mode, 2)]) {
-                data[parameterValue(param3Mode, 3)] = 1
+            if (memory[parameterValue(param1Mode, 1)] == memory[parameterValue(param2Mode, 2)]) {
+                memory[parameterValue(param3Mode, 3)] = 1
             } else {
-                data[parameterValue(param3Mode, 3)] = 0
+                memory[parameterValue(param3Mode, 3)] = 0
             }
-            return index + 4
+            return memoryPointer + 4
         }
         if (operation == 9) {
-            relativeBase += data[parameterValue(param1Mode, 1)].toInt()
-            return index + 2
+            relativeBase += memory[parameterValue(param1Mode, 1)].toInt()
+            return memoryPointer + 2
         }
         throw IllegalStateException("Unknown operation $operation")
     }
-
 }
 
-class OpcodeData(private val data: MutableMap<Int, Long>) {
+class OpcodeMemory(private val data: MutableMap<Int, Long>) {
     operator fun get(index: Int): Long = data[index]?:0
     operator fun set(index: Int, value: Long) {
         data[index] = value
@@ -91,12 +85,12 @@ class OpcodeData(private val data: MutableMap<Int, Long>) {
     }
 
     companion object OpcodeDatas {
-        fun fromList(inputData: List<Long>): OpcodeData {
+        fun fromList(inputData: List<Long>): OpcodeMemory {
             val map = mutableMapOf<Int, Long>()
-            for (i in 0 until inputData.size) {
+            for (i in inputData.indices) {
                 map[i] = inputData[i]
             }
-            return OpcodeData(map)
+            return OpcodeMemory(map)
         }
     }
 }

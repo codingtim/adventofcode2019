@@ -12,14 +12,14 @@ class Day09Test {
     internal fun task1() {
         val input = Files.readAllLines(Paths.get("src/test/resources/Day09"))[0]
         runOpcode(input, FixedInput(1L))
-        print(outputStore.getAll())
+        assertEquals(listOf(3335138414), outputStore.getAll())
     }
 
     @Test
     internal fun task2() {
         val input = Files.readAllLines(Paths.get("src/test/resources/Day09"))[0]
         runOpcode(input, FixedInput(2L))
-        print(outputStore.getAll())
+        assertEquals(listOf(49122L), outputStore.getAll())
     }
 
     private fun runOpcode(data: String, input: OpcodeInput) = runBlocking { Opcode(splitOpcodeString(data), input, outputStore).execute() }
