@@ -1,6 +1,10 @@
 import Day12Test.Position.Companion.parse
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.time.Duration
+import java.time.Instant
 import kotlin.math.abs
 
 class Day12Test {
@@ -119,13 +123,51 @@ class Day12Test {
 
     @Test
     internal fun task2() {
+        val start = Instant.now()
         val a = Moon(parse("<x=10, y=15, z=7>"), Velocity())
         val b = Moon(parse("<x=15, y=10, z=0>"), Velocity())
         val c = Moon(parse("<x=20, y=12, z=3>"), Velocity())
         val d = Moon(parse("<x=0, y=-3, z=13>"), Velocity())
 
         println(calculateStepsRequiredSamePosition(listOf(a, b, c, d)))
+        val end = Instant.now()
+        println(Duration.between(start, end))
     }
+
+    @Test
+    internal fun task2Async() {
+        val start = Instant.now()
+        val a = Moon(parse("<x=10, y=15, z=7>"), Velocity())
+        val b = Moon(parse("<x=15, y=10, z=0>"), Velocity())
+        val c = Moon(parse("<x=20, y=12, z=3>"), Velocity())
+        val d = Moon(parse("<x=0, y=-3, z=13>"), Velocity())
+
+        val moons = listOf(a, b, c, d)
+        runBlocking {
+            val stepsXSame = async { calculateStepsRequiredSamePosition(moons) { position -> position.x } }
+            val stepsYSame = async { calculateStepsRequiredSamePosition(moons) { position -> position.y } }
+            val stepsZSame = async { calculateStepsRequiredSamePosition(moons) { position -> position.z } }
+            val leastCommonMultipleXY = stepsXSame.await() * stepsYSame.await() / gcm(stepsXSame.await(), stepsYSame.await())
+            val leastCommonMultipleXYZ = leastCommonMultipleXY * stepsZSame.await() / gcm(leastCommonMultipleXY, stepsZSame.await())
+            println(leastCommonMultipleXYZ)
+        }
+        println()
+        val end = Instant.now()
+        println(Duration.between(start, end))
+    }
+
+    private fun calculateStepsRequiredSamePosition(moons: List<Moon>, axisValueExtractor: (Position) -> Int): Long {
+        val initPositions = moons.map { it.position }
+        val initialValue = initPositions.map(axisValueExtractor)
+        var steps = 1L
+        var innerMoons = moons
+        while (true) {
+            steps++
+            innerMoons = step(innerMoons)
+            if (innerMoons.map { it.position }.map(axisValueExtractor) == initialValue) return steps
+        }
+    }
+
 
     private fun step(moons: List<Moon>): List<Moon> = applyVelocity(applyGravity(moons))
 
