@@ -103,6 +103,10 @@ interface OpcodeOutput {
     suspend fun receive(output: Long)
 }
 
+fun parseOpcodeInput(s: String): OpcodeMemory {
+    return OpcodeMemory.fromList(splitOpcodeString(s))
+}
+
 fun splitOpcodeString(s: String): MutableList<Long> {
     return s.split(",").map { it.toLong() }.toMutableList()
 }
