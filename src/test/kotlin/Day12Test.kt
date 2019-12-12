@@ -62,6 +62,71 @@ class Day12Test {
         assertEquals(moons.map { m -> m.energy }.sum(), 8362)
     }
 
+    @Test
+    internal fun stepsRequiredForSamePosition() {
+        val a = Moon(parse("<x=-1, y=0, z=2"), Velocity())
+        val b = Moon(parse("<x=2, y=-10, z=-7>"), Velocity())
+        val c = Moon(parse("<x=4, y=-8, z=8>"), Velocity())
+        val d = Moon(parse("<x=3, y=5, z=-1>"), Velocity())
+
+        val steps = calculateStepsRequiredSamePosition(listOf(a, b, c, d))
+        assertEquals(2772, steps)
+    }
+
+    private fun calculateStepsRequiredSamePosition(moons: List<Moon>): Long {
+        val initPositions = moons.map { it.position }
+        val initX = initPositions.map { it.x }
+        val initY = initPositions.map { it.y }
+        val initZ = initPositions.map { it.z }
+        var stepsXSame = 0L
+        var stepsYSame = 0L
+        var stepsZSame = 0L
+        var steps = 1L
+        var innerMoons = moons
+        var run = true
+        while (run) {
+            steps++
+            innerMoons = step(innerMoons)
+            val innerPosition = innerMoons.map { it.position }
+            if (stepsXSame == 0L) {
+                if (innerPosition.map { it.x } == initX) stepsXSame = steps
+            }
+            if (stepsYSame == 0L) {
+                if (innerPosition.map { it.y } == initY) stepsYSame = steps
+            }
+            if (stepsZSame == 0L) {
+                if (innerPosition.map { it.z } == initZ) stepsZSame = steps
+            }
+            if (stepsXSame != 0L && stepsYSame != 0L && stepsZSame != 0L) run = false
+        }
+        // https://en.wikipedia.org/wiki/Greatest_common_divisor#Least_common_multiple
+        val leastCommonMultipleXY = stepsXSame * stepsYSame / gcm(stepsXSame, stepsYSame)
+        val leastCommonMultipleXYZ = leastCommonMultipleXY * stepsZSame / gcm(leastCommonMultipleXY, stepsZSame)
+        return leastCommonMultipleXYZ
+    }
+
+    fun gcm(a: Long, b: Long): Long = if (b == 0L) a else gcm(b, a % b)
+
+    @Test
+    internal fun stepsRequiredForSamePositionLarge() {
+        val a = Moon(parse("<x=-8, y=-10, z=0>"), Velocity())
+        val b = Moon(parse("<x=5, y=5, z=10>"), Velocity())
+        val c = Moon(parse("<x=2, y=-7, z=3>"), Velocity())
+        val d = Moon(parse("<x=9, y=-8, z=-3>"), Velocity())
+
+        assertEquals(4686774924, calculateStepsRequiredSamePosition(listOf(a, b, c, d)))
+    }
+
+    @Test
+    internal fun task2() {
+        val a = Moon(parse("<x=10, y=15, z=7>"), Velocity())
+        val b = Moon(parse("<x=15, y=10, z=0>"), Velocity())
+        val c = Moon(parse("<x=20, y=12, z=3>"), Velocity())
+        val d = Moon(parse("<x=0, y=-3, z=13>"), Velocity())
+
+        println(calculateStepsRequiredSamePosition(listOf(a, b, c, d)))
+    }
+
     private fun step(moons: List<Moon>): List<Moon> = applyVelocity(applyGravity(moons))
 
     private fun applyGravity(moons: List<Moon>): List<Moon> {
