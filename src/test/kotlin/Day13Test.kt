@@ -1,7 +1,5 @@
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.math.abs
 
 class Day13Test {
 
@@ -13,7 +11,7 @@ class Day13Test {
         println(board)
 
         arcadeGame.print()
-        println(board.values.count { it == Tile.BLOCK })
+        assertEquals(369, board.values.count { it == Tile.BLOCK })
     }
 
     @Test
