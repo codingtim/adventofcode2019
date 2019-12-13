@@ -22,6 +22,6 @@ class Day09Test {
         assertEquals(listOf(49122L), outputStore.getAll())
     }
 
-    private fun runOpcode(data: String, input: OpcodeInput) = runBlocking { Opcode(splitOpcodeString(data), input, outputStore).execute() }
+    private fun runOpcode(data: String, input: IntcodeInput) = runBlocking { Intcode(splitOpcodeString(data), input, outputStore).execute() }
 
 }

@@ -1,6 +1,6 @@
-class Opcode(private val name: String, private val memory: OpcodeMemory, private val input: OpcodeInput, private val output: OpcodeOutput) {
-    constructor(name: String, data: MutableList<Long>, input: OpcodeInput, output: OpcodeOutput) : this (name, OpcodeMemory.fromList(data), input, output)
-    constructor(data: MutableList<Long>, input: OpcodeInput, output: OpcodeOutput) : this("", data, input, output)
+class Intcode(private val name: String, private val memory: IntcodeMemory, private val input: IntcodeInput, private val output: IntcodeOutput) {
+    constructor(name: String, data: MutableList<Long>, input: IntcodeInput, output: IntcodeOutput) : this (name, IntcodeMemory.fromList(data), input, output)
+    constructor(data: MutableList<Long>, input: IntcodeInput, output: IntcodeOutput) : this("", data, input, output)
 
     private var relativeBase = 0
     private var memoryPointer = 0
@@ -74,7 +74,7 @@ class Opcode(private val name: String, private val memory: OpcodeMemory, private
     }
 }
 
-class OpcodeMemory(private val data: MutableMap<Int, Long>) {
+class IntcodeMemory(private val data: MutableMap<Int, Long>) {
     operator fun get(index: Int): Long = data[index]?:0
     operator fun set(index: Int, value: Long) {
         data[index] = value
@@ -85,26 +85,26 @@ class OpcodeMemory(private val data: MutableMap<Int, Long>) {
     }
 
     companion object OpcodeDatas {
-        fun fromList(inputData: List<Long>): OpcodeMemory {
+        fun fromList(inputData: List<Long>): IntcodeMemory {
             val map = mutableMapOf<Int, Long>()
             for (i in inputData.indices) {
                 map[i] = inputData[i]
             }
-            return OpcodeMemory(map)
+            return IntcodeMemory(map)
         }
     }
 }
 
-interface OpcodeInput {
+interface IntcodeInput {
     suspend fun get(): Long
 }
 
-interface OpcodeOutput {
+interface IntcodeOutput {
     suspend fun receive(output: Long)
 }
 
-fun parseOpcodeInput(s: String): OpcodeMemory {
-    return OpcodeMemory.fromList(splitOpcodeString(s))
+fun parseOpcodeInput(s: String): IntcodeMemory {
+    return IntcodeMemory.fromList(splitOpcodeString(s))
 }
 
 fun splitOpcodeString(s: String): MutableList<Long> {

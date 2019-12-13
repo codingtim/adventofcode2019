@@ -2,7 +2,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-internal class OpcodeTest {
+internal class IntcodeTest {
     private val outputStore = OutputStore()
 
     @Test
@@ -28,11 +28,11 @@ internal class OpcodeTest {
         )
     }
 
-    private fun runOpcode(data: String, input: OpcodeInput) = runBlocking { Opcode(splitOpcodeString(data), input, outputStore).execute() }
+    private fun runOpcode(data: String, input: IntcodeInput) = runBlocking { Intcode(splitOpcodeString(data), input, outputStore).execute() }
 
 }
 
-class OutputStore: OpcodeOutput {
+class OutputStore: IntcodeOutput {
     private var outputs = mutableListOf<Long>()
     override suspend fun receive(output: Long) {
         outputs.add(output)
@@ -41,7 +41,7 @@ class OutputStore: OpcodeOutput {
     fun getAll(): List<Long> = outputs
 }
 
-class FixedInput(private val input: Long): OpcodeInput {
+class FixedInput(private val input: Long): IntcodeInput {
     override suspend fun get(): Long {
         return input;
     }

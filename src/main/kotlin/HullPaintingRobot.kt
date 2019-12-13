@@ -1,10 +1,10 @@
 import kotlinx.coroutines.runBlocking
 
 class HullPaintingRobot(
-        memory: OpcodeMemory,
+        memory: IntcodeMemory,
         private val hull: Hull
-) : OpcodeInput, OpcodeOutput {
-    private val brain: Opcode = Opcode("HullPaintingRobot", memory, this, this)
+) : IntcodeInput, IntcodeOutput {
+    private val brain: Intcode = Intcode("HullPaintingRobot", memory, this, this)
 
     private var position = Coordinate(0, 0)
     private var direction = Direction.UP
