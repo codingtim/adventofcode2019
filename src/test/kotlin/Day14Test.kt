@@ -2,6 +2,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Paths
+import kotlin.math.max
 
 class Day14Test {
 
@@ -76,6 +77,32 @@ class Day14Test {
 
         val cost = produce(Chemical("FUEL"), reactionsMap, mutableMapOf())
         println(cost)
+    }
+
+    @Test
+    internal fun simpleTask2() {
+        val input = Files.readAllLines(Paths.get("src/test/resources/Day14"))
+        val reactions = input.map { parseReaction(it) }
+        val reactionsMap = reactions.map { it.produces.chemical to it }.toMap()
+
+        val maxProcurable = maxProcurable(reactionsMap)
+        println(maxProcurable)
+        assertEquals(82892753, maxProcurable)
+    }
+
+    private fun maxProcurable(reactions: Map<Chemical, Reaction>): Int {
+        val stock = mutableMapOf<Chemical, Int>()
+        var oreAmount = 1000000000000L
+        var fuelAmount = 0
+        oreAmount -= produce(Chemical("FUEL"), reactions, stock)
+        while (oreAmount > 0) {
+            fuelAmount++
+            if(fuelAmount % 10000 == 0) {
+                println("$fuelAmount $oreAmount")
+            }
+            oreAmount -= produce(Chemical("FUEL"), reactions, stock)
+        }
+        return fuelAmount
     }
 
     private fun produce(toProduce: Chemical, reactions: Map<Chemical, Reaction>, stock: MutableMap<Chemical, Int>): Int {
